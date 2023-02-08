@@ -1,9 +1,10 @@
 import datetime
-from logging import getLogger, Logger
-from selenium import webdriver
-from typing import Any, Dict, Optional
+from logging import Logger, getLogger
+from typing import Any, Dict, Optional, Union
 
-from . import scraper, operator
+from selenium import webdriver
+
+from . import operator, scraper
 from .drivers import create_httpget_driver
 from .user_information import UserInformation
 from .validator import validate_date, validate_race, validate_stadium
@@ -33,7 +34,9 @@ class PyJPBoatrace(object):
 
     def __init__(
         self,
-        driver: webdriver.remote.webdriver.WebDriver = create_httpget_driver(),
+        driver: Union[
+            webdriver.remote.webdriver.WebDriver, None
+        ] = create_httpget_driver(),
         user_information: Optional[UserInformation] = None,
         close_driver_when_closing_pyjpboatrace: bool = True,
         logger: Logger = getLogger(__name__),
@@ -41,14 +44,18 @@ class PyJPBoatrace(object):
         """Python-based Japanese Boatrace Tools Class
 
         Args:
-            driver (webdriver.remote.webdriver.WebDriver, optional): webdriver. Defaults to create_httpget_driver().  # noqa
+            driver (Union[webdriver.remote.webdriver.WebDriver, None], optional): webdriver.
+                Defaults to create_httpget_driver().
+                If None is given, requests is used.
             user_information (Optional[UserInformation], optional): user information. Defaults to None.  # noqa
             close_driver_when_closing_pyjpboatrace (bool, optional): If True, close driver when calling self.close(). Defaults to True.  # noqa
             logger (Logger, optional): logger. Defaults to getLogger(__name__).  # noqa
         """
         self.__driver = driver
         self.__user_information = user_information
-        self.__close_driver_when_closing_pyjpboatrace = close_driver_when_closing_pyjpboatrace  # noqa
+        self.__close_driver_when_closing_pyjpboatrace = (
+            close_driver_when_closing_pyjpboatrace  # noqa
+        )
         self.__logger = logger
 
         self.Stadiums = scraper.StadiumsScraper(driver)
@@ -65,7 +72,9 @@ class PyJPBoatrace(object):
         self.Bet = operator.BettingOperator(user_information, driver)
         self.Depost = operator.DepositOperator(user_information, driver)
         self.Withdraw = operator.WithdrawOperator(user_information, driver)
-        self.BettingLimitCheck = operator.BettingLimitCheckOperator(user_information, driver)  # noqa
+        self.BettingLimitCheck = operator.BettingLimitCheckOperator(
+            user_information, driver
+        )  # noqa
 
     def __enter__(self):
         return self
@@ -74,7 +83,7 @@ class PyJPBoatrace(object):
         self.close()
 
     def close(self):
-        if self.__close_driver_when_closing_pyjpboatrace:
+        if self.__driver and self.__close_driver_when_closing_pyjpboatrace:
             self.__driver.close()
             self.__logger.info("Closed the driver")
 
@@ -111,7 +120,9 @@ class PyJPBoatrace(object):
         validate_stadium(stadium)
         return self.Races.get(d, stadium)
 
-    def get_race_info(self, d: datetime.date, stadium: int, race: int) -> Dict[str, Any]:  # noqa
+    def get_race_info(
+        self, d: datetime.date, stadium: int, race: int
+    ) -> Dict[str, Any]:  # noqa
         """Get race information.
 
         Args:
@@ -133,10 +144,7 @@ class PyJPBoatrace(object):
         return self.RaceInfo.get(d, stadium, race)
 
     def get_odds_win_placeshow(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get win/placeshow odds
 
@@ -159,10 +167,7 @@ class PyJPBoatrace(object):
         return self.WinPlaceshowOdds.get(d, stadium, race)
 
     def get_odds_quinellaplace(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get quinellaplace odds
 
@@ -185,10 +190,7 @@ class PyJPBoatrace(object):
         return self.QuinellaplaceOdds.get(d, stadium, race)
 
     def get_odds_exacta_quinella(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get exacta/quinella odds
 
@@ -211,10 +213,7 @@ class PyJPBoatrace(object):
         return self.ExactaQuinellaOdds.get(d, stadium, race)
 
     def get_odds_trifecta(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get trifecta odds
 
@@ -237,10 +236,7 @@ class PyJPBoatrace(object):
         return self.TrifectaOdds.get(d, stadium, race)
 
     def get_odds_trio(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get trio odds
 
@@ -263,10 +259,7 @@ class PyJPBoatrace(object):
         return self.TrioOdds.get(d, stadium, race)
 
     def get_just_before_info(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get just-before race information
 
@@ -289,10 +282,7 @@ class PyJPBoatrace(object):
         return self.JustBeforeInfo.get(d, stadium, race)
 
     def get_race_result(
-        self,
-        d: datetime.date,
-        stadium: int,
-        race: int
+        self, d: datetime.date, stadium: int, race: int
     ) -> Dict[str, Any]:
         """Get race result.
 
@@ -431,18 +421,14 @@ class PyJPBoatrace(object):
         """
         # create bet dict
         betdict = {
-            'trifecta': trifecta_betting_dict,
-            'trio': trio_betting_dict,
-            'exacta': exacta_betting_dict,
-            'quinella': quinella_betting_dict,
-            'quinellaplace': quinellaplace_betting_dict,
-            'win': win_betting_dict,
-            'placeshow': placeshow_betting_dict,
+            "trifecta": trifecta_betting_dict,
+            "trio": trio_betting_dict,
+            "exacta": exacta_betting_dict,
+            "quinella": quinella_betting_dict,
+            "quinellaplace": quinellaplace_betting_dict,
+            "win": win_betting_dict,
+            "placeshow": placeshow_betting_dict,
         }
 
         # bet
-        return self.Bet.do(
-            stadium=stadium,
-            race=race,
-            betdict=betdict
-        )
+        return self.Bet.do(stadium=stadium, race=race, betdict=betdict)
