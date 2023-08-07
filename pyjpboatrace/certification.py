@@ -1,13 +1,13 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from logging import Logger, getLogger
 
-from .user_information import UserInformation
-from .const import BOATRACEJP_MAIN_URL
-from .const import BOATRACEJP_LOGIN_URL, BOATRACEJP_LOGOUT_URL
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from .const import BOATRACEJP_LOGIN_URL, BOATRACEJP_LOGOUT_URL, BOATRACEJP_MAIN_URL
 from .exceptions import LoginFailException
+from .user_information import UserInformation
 
 # TODO error handling : failed to read
 
@@ -16,7 +16,7 @@ def login(
     driver: webdriver.remote.webdriver.WebDriver,
     user: UserInformation,
     timeout: int = 15,
-    logger: Logger = getLogger(__name__)
+    logger: Logger = getLogger(__name__),
 ) -> bool:
     """Login to boatrace.jp
 
@@ -42,33 +42,33 @@ def login(
 
     # send keys
     WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.NAME, 'in_KanyusyaNo'))
+        EC.presence_of_element_located((By.NAME, "in_KanyusyaNo"))
     )
-    driver.find_element_by_css_selector('input[name="in_KanyusyaNo"]')\
-          .send_keys(user.userid)
-    logger.debug('put userid')
+    driver.find_element(By.CSS_SELECTOR, 'input[name="in_KanyusyaNo"]').send_keys(
+        user.userid
+    )
+    logger.debug("put userid")
 
     WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.NAME, 'in_AnsyoNo'))
+        EC.presence_of_element_located((By.NAME, "in_AnsyoNo"))
     )
-    driver.find_element_by_css_selector('input[name="in_AnsyoNo"]')\
-          .send_keys(user.pin)
-    logger.debug('put user pin')
+    driver.find_element(By.CSS_SELECTOR, 'input[name="in_AnsyoNo"]').send_keys(user.pin)
+    logger.debug("put user pin")
 
     WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.NAME, 'in_PassWord'))
+        EC.presence_of_element_located((By.NAME, "in_PassWord"))
     )
-    driver.find_element_by_css_selector('input[name="in_PassWord"]')\
-          .send_keys(user.auth_pass)
-    logger.debug('put authentification password')
+    driver.find_element(By.CSS_SELECTOR, 'input[name="in_PassWord"]').send_keys(
+        user.auth_pass
+    )
+    logger.debug("put authentification password")
 
     # press button
     WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.CLASS_NAME, 'is-type3_2'))
+        EC.presence_of_element_located((By.CLASS_NAME, "is-type3_2"))
     )
-    driver.find_element_by_css_selector('button[class="btn is-type3_2"]')\
-          .click()
-    logger.debug('Pressed login button')
+    driver.find_element(By.CSS_SELECTOR, 'button[class="btn is-type3_2"]').click()
+    logger.debug("Pressed login button")
 
     is_successed = check_login_status(driver)
 
@@ -79,8 +79,7 @@ def login(
 
 
 def logout(
-    driver: webdriver.remote.webdriver.WebDriver,
-    logger: Logger = getLogger(__name__)
+    driver: webdriver.remote.webdriver.WebDriver, logger: Logger = getLogger(__name__)
 ) -> bool:
     """Logout from boatrace.jp
 
@@ -112,7 +111,7 @@ def check_login_status(
     # get
     driver.get(BOATRACEJP_MAIN_URL)
 
-    if driver.find_elements_by_class_name('is-logout1'):
+    if driver.find_elements(By.CLASS_NAME, "is-logout1"):
         return True
     else:
         return False

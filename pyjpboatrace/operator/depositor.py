@@ -1,12 +1,12 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 from .base import BaseOperator, DriverCheckMixin
 from .static import visit_ibmbraceorjp
 
 
 class DepositOperator(BaseOperator, DriverCheckMixin):
-
     def do(
         self,
         depo_amt_unit_thousands_yen: int,
@@ -38,37 +38,37 @@ class DepositOperator(BaseOperator, DriverCheckMixin):
 
         # click deposit/withdraw
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'gnavi01'))
+            EC.presence_of_element_located((By.ID, "gnavi01"))
         )
-        self._driver.find_element_by_id('gnavi01').click()
+        self._driver.find_element(By.ID, "gnavi01").click()
 
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'charge'))
+            EC.presence_of_element_located((By.ID, "charge"))
         )
-        self._driver.find_element_by_id('charge').click()
+        self._driver.find_element(By.ID, "charge").click()
 
         # input
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'chargeInstructAmt'))
+            EC.presence_of_element_located((By.ID, "chargeInstructAmt"))
         )
-        self._driver.find_element_by_id('chargeInstructAmt')\
-            .send_keys(str(depo_amt_unit_thousands_yen))
+        self._driver.find_element(By.ID, "chargeInstructAmt").send_keys(
+            str(depo_amt_unit_thousands_yen)
+        )
 
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'chargeBetPassword'))
+            EC.presence_of_element_located((By.ID, "chargeBetPassword"))
         )
-        self._driver.find_element_by_id('chargeBetPassword')\
-                    .send_keys(self._user.vote_pass)
+        self._driver.find_element(By.ID, "chargeBetPassword").send_keys(
+            self._user.vote_pass
+        )
 
         # press button
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'executeCharge'))
+            EC.presence_of_element_located((By.ID, "executeCharge"))
         )
-        self._driver.find_element_by_id('executeCharge')\
-            .click()
+        self._driver.find_element(By.ID, "executeCharge").click()
 
         WebDriverWait(self._driver, timeout).until(
-            EC.presence_of_element_located((By.ID, 'ok'))
+            EC.presence_of_element_located((By.ID, "ok"))
         )
-        self._driver.find_element_by_id('ok')\
-            .click()
+        self._driver.find_element(By.ID, "ok").click()
